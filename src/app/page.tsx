@@ -8,27 +8,7 @@ import {
 
 export default function HomePage() {
   const featuredProjects = projects.filter((p) => p.status === "Active").slice(0, 4);
-
-  const researchNews = [
-    {
-      id: "phd-recruiting",
-      date: "2025-09-01",
-      content: <>Recruiting PhD students for Fall 2026</>,
-    },
-    {
-      id: "aied-2025",
-      date: "2025-06-15",
-      content: <>Paper accepted to <Link className="text-puffin-sky hover:underline" href="https://aied2025.itd.cnr.it/index.html">AIED 2025</Link></>,
-    },
-  ];
-
-  const socialNews = [
-    {
-      id: "lab-launch",
-      date: "2025-01-15",
-      content: <>Puffin Lab launches at University of Maine</>,
-    },
-  ];
+  
 
   return (
     <>
@@ -147,37 +127,6 @@ export default function HomePage() {
               </div>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* News Section - 1 Column */}
-      <section className="py-6 md:py-6 bg-puffin-cream/50">
-        <div className="mx-auto max-w-6xl px-6">
-          <h2 className="mb-2 text-base font-semibold uppercase tracking-wide text-puffin-navy">
-            News
-          </h2>
-          <ul className="space-y-2 text-sm">
-            {[...researchNews, ...socialNews].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map((item) => (
-              <li
-                key={item.id}
-                className="flex flex-col gap-1"
-              >
-                <div className="items-baseline gap-3">
-                  <time
-                    dateTime={item.date}
-                    className="whitespace-nowrap font-bold text-puffin-orange text-sm pr-2"
-                  >
-                    {new Date(item.date).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })}:
-                  </time>
-                  <span className="text-puffin-navy font-medium">{item.content}</span>
-                </div>
-              </li>
-            ))}
-          </ul>
         </div>
       </section>
     </>

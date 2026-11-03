@@ -1,9 +1,72 @@
 "use client";
-
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { formatDate, type NewsPost } from "@/lib/newsPosts";
 
-export function PostsViewer({ posts }: { posts: NewsPost[] }) {
+
+export function NewsLink({ link }: { link: NonNullable<NewsPost["link"]> }) {
+  const className = "text-xs font-medium text-puffin-sky hover:underline";
+
+  // External links open in a new tab; internal links use Next's <Link>
+  if (link.href.startsWith("http")) {
+    return (
+      <a href={link.href} target="_blank" rel="noopener noreferrer" className={className}>
+        {link.label} →
+      </a>
+    );
+  }
+
+  return (
+    <Link href={link.href} className={className}>
+      {link.label} →
+    </Link>
+  );
+}
+
+//Allows multiple images to be cycled through
+function ImageCarousel({ images }: { images: string[] }) {
+  const [index, setIndex] = useState(0);
+  const count = images.length;
+
+  // Wraps around: going "next" on the last image returns to the first
+  const go = (step: number) => setIndex((i) => (i + step + count) % count);
+
+  const arrowClass =
+    "absolute top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-white/85 text-xl text-puffin-navy shadow hover:bg-white";
+
+  return (
+    <div className="relative aspect-video bg-puffin-navy/5">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={images[index]} alt="" className="h-full w-full object-cover" />
+
+      {/* Only show controls when there's more than one image */}
+      {count > 1 && (
+        <>
+          <button type="button" onClick={() => go(-1)} aria-label="Previous image" className={`${arrowClass} left-3`}>
+            ‹
+          </button>
+          <button type="button" onClick={() => go(1)} aria-label="Next image" className={`${arrowClass} right-3`}>
+            ›
+          </button>
+          <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5">
+            {images.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => setIndex(i)}
+                aria-label={`Show image ${i + 1} of ${count}`}
+                aria-current={i === index ? "true" : undefined}
+                className={`h-2 w-2 rounded-full ${i === index ? "bg-white" : "bg-white/50 hover:bg-white/80"}`}
+              />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+export function NewsViewer({ posts }: { posts: NewsPost[] }) {
   const [selectedId, setSelectedId] = useState(posts[0]?.id);
 
   // Open the post named in the URL, e.g. /news#example-post, so a post can be shared by link
@@ -65,23 +128,25 @@ export function PostsViewer({ posts }: { posts: NewsPost[] }) {
 
       {/* Selected post */}
       <article className="overflow-hidden rounded-xl border border-puffin-blue/10 bg-white shadow-sm">
-        {selected.coverImage && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={selected.coverImage} alt="" className="aspect-video w-full object-cover" />
+          {selected.images && selected.images.length > 0 && (
+          <ImageCarousel key={selected.id} images={selected.images} />
         )}
+
         <div className="p-6 md:p-8">
           <time dateTime={selected.date} className="text-sm font-bold text-puffin-orange">
             {formatDate(selected.date)}
           </time>
           <h3 className="mt-1 text-2xl font-semibold text-puffin-navy">{selected.title}</h3>
-          {selected.author && (
-            <p className="mt-1 text-xs text-puffin-gray">By {selected.author}</p>
-          )}
           <div className="mt-4 space-y-4 text-puffin-gray leading-relaxed">
             {selected.content.map((paragraph, i) => (
               <p key={i}>{paragraph}</p>
             ))}
           </div>
+            {selected.link && (
+            <div className="mt-6">
+              <NewsLink link={selected.link} />
+            </div>
+          )}
         </div>
       </article>
     </div>
